@@ -1,9 +1,8 @@
--- إنشاء قاعدة البيانات
-CREATE DATABASE IF NOT EXISTS fire_load CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE fire_load;
+-- لا نقوم بإنشاء قاعدة البيانات، بل نستخدم الموجودة مسبقاً
+-- تم حذف السطر CREATE DATABASE و USE
 
 -- جدول المستخدمين
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -17,7 +16,7 @@ CREATE TABLE users (
 );
 
 -- جدول طلبات الإيداع (شحن المحفظة)
-CREATE TABLE deposits (
+CREATE TABLE IF NOT EXISTS deposits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
@@ -30,7 +29,7 @@ CREATE TABLE deposits (
 );
 
 -- جدول الباقات (المنتجات)
-CREATE TABLE packages (
+CREATE TABLE IF NOT EXISTS packages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -46,7 +45,7 @@ CREATE TABLE packages (
 );
 
 -- جدول طلبات الشراء (الألماس)
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     package_id INT NOT NULL,
@@ -61,7 +60,7 @@ CREATE TABLE orders (
 );
 
 -- جدول بطاقات الفيزا (للأتمتة)
-CREATE TABLE cards (
+CREATE TABLE IF NOT EXISTS cards (
     id INT AUTO_INCREMENT PRIMARY KEY,
     card_number VARCHAR(255) NOT NULL, -- مشفر
     expiry VARCHAR(10) NOT NULL,
@@ -74,7 +73,7 @@ CREATE TABLE cards (
 );
 
 -- جدول سجل النظام (logs)
-CREATE TABLE system_logs (
+CREATE TABLE IF NOT EXISTS system_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_type VARCHAR(50),
     message TEXT,
@@ -82,7 +81,7 @@ CREATE TABLE system_logs (
 );
 
 -- جدول محادثات التليجرام (اختياري لربط البوت)
-CREATE TABLE telegram_chats (
+CREATE TABLE IF NOT EXISTS telegram_chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     chat_id BIGINT NOT NULL,
     user_id INT, -- يمكن ربطه بحساب الموقع
@@ -92,8 +91,8 @@ CREATE TABLE telegram_chats (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- إدخال بعض الباقات الافتراضية
-INSERT INTO packages (name, description, type, diamonds, price, cost, sort_order) VALUES
+-- إدخال بعض الباقات الافتراضية (إذا لم تكن موجودة)
+INSERT IGNORE INTO packages (name, description, type, diamonds, price, cost, sort_order) VALUES
 ('100 ألماسة', '100 ألماسة + 10 كيلوغا', 'diamond', 100, 1.50, 1.00, 1),
 ('210 ألماسة', '210 ألماسة + 21 غلاف', 'diamond', 210, 3.00, 2.00, 2),
 ('530 ألماسة', '530 ألماسة + 53 غلاف', 'diamond', 530, 7.50, 5.00, 3),
