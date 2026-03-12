@@ -1,5 +1,5 @@
--- لا نقوم بإنشاء قاعدة البيانات، بل نستخدم الموجودة مسبقاً
--- تم حذف السطر CREATE DATABASE و USE
+-- استخدم قاعدة البيانات الموجودة (لا تنشئ قاعدة جديدة)
+-- تأكد من أنك تعمل على if0_41356269_fireload_db
 
 -- جدول المستخدمين
 CREATE TABLE IF NOT EXISTS users (
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- جدول طلبات الإيداع (شحن المحفظة)
+-- جدول طلبات الإيداع
 CREATE TABLE IF NOT EXISTS deposits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -36,35 +36,35 @@ CREATE TABLE IF NOT EXISTS packages (
     type ENUM('diamond','pass','membership') NOT NULL,
     diamonds INT DEFAULT 0,
     price DECIMAL(10,2) NOT NULL,
-    cost DECIMAL(10,2), -- سعر التكلفة (للأدمن)
-    duration VARCHAR(20), -- weekly, monthly للعضويات
+    cost DECIMAL(10,2),
+    duration VARCHAR(20),
     image VARCHAR(255),
     sort_order INT DEFAULT 0,
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- جدول طلبات الشراء (الألماس)
+-- جدول طلبات الشراء
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     package_id INT NOT NULL,
-    player_id VARCHAR(50) NOT NULL, -- ID فري فاير
-    amount DECIMAL(10,2) NOT NULL, -- المبلغ المخصوم
+    player_id VARCHAR(50) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
     status ENUM('pending','processing','completed','failed') DEFAULT 'pending',
-    automation_status TEXT, -- تفاصيل من المحاكي
+    automation_status TEXT,
     completed_at DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (package_id) REFERENCES packages(id)
 );
 
--- جدول بطاقات الفيزا (للأتمتة)
+-- جدول بطاقات الفيزا
 CREATE TABLE IF NOT EXISTS cards (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    card_number VARCHAR(255) NOT NULL, -- مشفر
+    card_number VARCHAR(255) NOT NULL,
     expiry VARCHAR(10) NOT NULL,
-    cvv VARCHAR(255) NOT NULL, -- مشفر
+    cvv VARCHAR(255) NOT NULL,
     balance DECIMAL(10,2) DEFAULT 0.00,
     status ENUM('active','blocked','expired') DEFAULT 'active',
     usage_count INT DEFAULT 0,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS cards (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- جدول سجل النظام (logs)
+-- جدول سجل النظام
 CREATE TABLE IF NOT EXISTS system_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_type VARCHAR(50),
@@ -80,19 +80,19 @@ CREATE TABLE IF NOT EXISTS system_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- جدول محادثات التليجرام (اختياري لربط البوت)
+-- جدول محادثات التليجرام
 CREATE TABLE IF NOT EXISTS telegram_chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     chat_id BIGINT NOT NULL,
-    user_id INT, -- يمكن ربطه بحساب الموقع
+    user_id INT,
     step VARCHAR(50),
     temp_data TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- إدخال بعض الباقات الافتراضية (إذا لم تكن موجودة)
-INSERT IGNORE INTO packages (name, description, type, diamonds, price, cost, sort_order) VALUES
+-- إدخال الباقات الافتراضية
+INSERT INTO packages (name, description, type, diamonds, price, cost, sort_order) VALUES
 ('100 ألماسة', '100 ألماسة + 10 كيلوغا', 'diamond', 100, 1.50, 1.00, 1),
 ('210 ألماسة', '210 ألماسة + 21 غلاف', 'diamond', 210, 3.00, 2.00, 2),
 ('530 ألماسة', '530 ألماسة + 53 غلاف', 'diamond', 530, 7.50, 5.00, 3),
