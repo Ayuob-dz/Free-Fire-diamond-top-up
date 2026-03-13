@@ -1,7 +1,4 @@
--- استخدم قاعدة البيانات الموجودة (لا تنشئ قاعدة جديدة)
--- تأكد من أنك تعمل على if0_41356269_fireload_db
-
--- جدول المستخدمين
+-- إنشاء الجداول إذا لم تكن موجودة
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
@@ -15,7 +12,6 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- جدول طلبات الإيداع
 CREATE TABLE IF NOT EXISTS deposits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -28,7 +24,6 @@ CREATE TABLE IF NOT EXISTS deposits (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- جدول الباقات (المنتجات)
 CREATE TABLE IF NOT EXISTS packages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -44,7 +39,6 @@ CREATE TABLE IF NOT EXISTS packages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- جدول طلبات الشراء
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -59,7 +53,6 @@ CREATE TABLE IF NOT EXISTS orders (
     FOREIGN KEY (package_id) REFERENCES packages(id)
 );
 
--- جدول بطاقات الفيزا
 CREATE TABLE IF NOT EXISTS cards (
     id INT AUTO_INCREMENT PRIMARY KEY,
     card_number VARCHAR(255) NOT NULL,
@@ -72,7 +65,6 @@ CREATE TABLE IF NOT EXISTS cards (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- جدول سجل النظام
 CREATE TABLE IF NOT EXISTS system_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_type VARCHAR(50),
@@ -80,7 +72,6 @@ CREATE TABLE IF NOT EXISTS system_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- جدول محادثات التليجرام
 CREATE TABLE IF NOT EXISTS telegram_chats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     chat_id BIGINT NOT NULL,
@@ -91,13 +82,13 @@ CREATE TABLE IF NOT EXISTS telegram_chats (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- إدخال الباقات الافتراضية
-INSERT INTO packages (name, description, type, diamonds, price, cost, sort_order) VALUES
+-- إدراج الباقات الافتراضية (مع تجاهل التكرار)
+INSERT IGNORE INTO packages (name, description, type, diamonds, price, cost, sort_order) VALUES
 ('100 ألماسة', '100 ألماسة + 10 كيلوغا', 'diamond', 100, 1.50, 1.00, 1),
 ('210 ألماسة', '210 ألماسة + 21 غلاف', 'diamond', 210, 3.00, 2.00, 2),
 ('530 ألماسة', '530 ألماسة + 53 غلاف', 'diamond', 530, 7.50, 5.00, 3),
-('1080 ألماسة', '1,080 ألماسة + 108 غلاف', 'diamond', 1080, 15.00, 10.00, 4),
-('2200 ألماسة', '2,200 ألماسة + 220 غلاف', 'diamond', 2200, 30.00, 20.00, 5),
-('Booyah Pass', 'تصريح بوابة', 'pass', 0, 4.50, 3.00, 6),
+('1080 ألماسة', '1080 ألماسة + 108 غلاف', 'diamond', 1080, 15.00, 10.00, 4),
+('2200 ألماسة', '2200 ألماسة + 220 غلاف', 'diamond', 2200, 30.00, 20.00, 5),
+('Booyah Pass', 'تصريح البوابة', 'pass', 0, 4.50, 3.00, 6),
 ('عضوية أسبوعية', 'اشتراك أسبوعي', 'membership', 0, 3.00, 2.00, 7),
 ('عضوية شهرية', 'اشتراك شهري', 'membership', 0, 15.00, 10.00, 8);
